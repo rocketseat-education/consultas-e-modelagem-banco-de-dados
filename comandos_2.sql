@@ -47,3 +47,7 @@ SELECT o.order_id, o.customer_id AS pedido_customer_id, o.order_date, o.status, 
 SELECT COALESCE(c.first_name, 'SEM NOME') AS primeiro_nome, COALESCE(c.last_name, 'DESCONHECIDO') AS sobrenome FROM customers AS c;
 
 SELECT c.customer_id, COALESCE(c.first_name, 'SEM NOME') AS primeiro_nome, COALESCE(c.last_name, 'DESCONHECIDO') AS sobrenome, COALESCE(o.total_amount, 0) AS total_ultimo_pedido FROM customers AS c LEFT JOIN (SELECT customer_id, SUM(total_amount) AS total_amount FROM orders WHERE order_date >= '2024-01-01' GROUP BY customer_id) AS o ON c.customer_id = o.customer_id;
+
+SELECT * FROM products AS p LEFT JOIN order_items AS oi ON p.product_id = oi.product_id AND oi.quantity > 0;
+
+SELECT * FROM (SELECT p.product_id, p.product_name, oi.order_id, oi.quantity FROM products AS p LEFT JOIN order_items AS oi ON p.product_id = oi.product_id) AS subq WHERE suba.quantitv > 0 OR suba.quantity IS NULL;
