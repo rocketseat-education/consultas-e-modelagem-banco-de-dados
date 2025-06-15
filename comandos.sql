@@ -33,3 +33,7 @@ SELECT customer_id FROM customers WHERE city IN ('Manaus', 'Recife', 'Fortaleza'
 SELECT product_id, product_name, category_id FROM products WHERE category_id NOT IN (2, 4, 6);
 
 SELECT product_id, product_name FROM products WHERE category_id IS NOT NULL AND category_id NOT IN (2, 4, 6);
+
+SELECT product_id, price FROM products WHERE price BETWEEN 150 AND 300;
+
+SELECT product_id, product_name FROM products WHERE product_name BETWEEN 'Produto 10' AND 'Produto 20';
