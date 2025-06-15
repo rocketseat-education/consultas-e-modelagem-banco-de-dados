@@ -23,3 +23,11 @@ SELECT * FROM pedidos AS p INNER JOIN clientes AS c ON p.cliente_id = c.id INNER
 SELECT o.order_id, o.order_date, c.first_name || ' ' || c. last_name AS cliente, c.city, p.product_name, oi.quantity, oi.unit_price, (oi.quantity * oi.unit_price) AS subtotal FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.customer_id INNER JOIN order_items AS oi ON o.order_id = oi.order_id INNER JOIN products AS p ON oi.product_id = p.product_id WHERE o.status = 'DELIVERED';
 
 SELECT o.order_id, o.order_date, c.first_name || ' ' || c. last_name AS cliente, c.city, p.product_name, oi.quantity, oi.unit_price, (oi.quantity * oi.unit_price) AS subtotal FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.customer_id INNER JOIN order_items AS oi ON o.order_id = oi.order_id INNER JOIN products AS p ON oi.product_id = p.product_id WHERE o.order_date BETWEEN '2024-06-01' AND '2024-08-31' ORDER BY o.order_date DESC;
+
+SELECT DISTINCT c.city FROM customers AS c INNER JOIN orders AS o ON c.customer_id = o.customer_id;
+
+SELECT CONCAT(c.first_name, ' ', c.last_name) AS nome_completo, TO_CHAR(o.order_date, 'DD/MM/YYYY') AS data_formatada FROM customers AS c INNER JOIN orders AS o ON c.customer_id = o.customer_id;
+
+SELECT c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS cliente, COUNT(o.order_id) AS total_pedidos FROM customers AS c INNER JOIN orders AS o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.first_name, c.last_name ORDER BY total_pedidos DESC;
+
+SELECT o.order_id, CONCAT(c.first_name, ' ', c.last_name) AS cliente_completo, TO_CHAR(o.order_date, 'DD-Mon-YYYY') AS data_legivel FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.customer_id ORDER BY o.order_date DESC;
