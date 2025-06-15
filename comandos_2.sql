@@ -17,3 +17,9 @@ SELECT p.product_id, p.product_name, c.category_id, c.category_name FROM product
 SELECT p.product_id AS pid, p.product_name AS nome_produto, c.category_id, c.category_name FROM products AS p INNER JOIN categories AS c ON p.category_id = c.category_id WHERE p.price > 100 ORDER BY pid;
 
 SELECT o.order_id, o.customer_id, c.first_name || ' ' || c.last_name AS cliente, o.order_date, o.status, o.total_amount FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.customer_id AND o.order_date >= c.created_at ORDER BY o.order_date DESC LIMIT 20;
+
+SELECT * FROM pedidos AS p INNER JOIN clientes AS c ON p.cliente_id = c.id INNER JOIN produtos AS pr ON p.produto_id = pr.id INNER JOIN pagamentos AS pg ON p.id = pg.pedido_id;
+
+SELECT o.order_id, o.order_date, c.first_name || ' ' || c. last_name AS cliente, c.city, p.product_name, oi.quantity, oi.unit_price, (oi.quantity * oi.unit_price) AS subtotal FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.customer_id INNER JOIN order_items AS oi ON o.order_id = oi.order_id INNER JOIN products AS p ON oi.product_id = p.product_id WHERE o.status = 'DELIVERED';
+
+SELECT o.order_id, o.order_date, c.first_name || ' ' || c. last_name AS cliente, c.city, p.product_name, oi.quantity, oi.unit_price, (oi.quantity * oi.unit_price) AS subtotal FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.customer_id INNER JOIN order_items AS oi ON o.order_id = oi.order_id INNER JOIN products AS p ON oi.product_id = p.product_id WHERE o.order_date BETWEEN '2024-06-01' AND '2024-08-31' ORDER BY o.order_date DESC;
