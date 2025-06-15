@@ -37,3 +37,5 @@ SELECT p.product_id, p.product_name, oi.order_id FROM products AS p LEFT JOIN or
 SELECT p.product_id, p.product_name, oi.order_id, COUNT(oi.order_item_id) AS total_vendas FROM products AS p LEFT JOIN order_items AS oi ON p.product_id = oi.product_id GROUP BY p.product_id, p.product_name, oi.order_id ORDER BY total_vendas DESC;
 
 SELECT p.product_id, p.product_name, oi.ordem_id FROM products AS p LEFT JOIN order_items AS oi ON p.product_id = oi.product_id WHERE oi.order_item_id IS NULL ORDER BY p.product_name;
+
+SELECT c.customer_id, c.first_name, c.last_name, o.order_id FROM orders AS o RIGHT JOIN customers AS c ON o.customer_id = c.customer_id;
