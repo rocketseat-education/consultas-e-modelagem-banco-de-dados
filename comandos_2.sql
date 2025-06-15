@@ -39,3 +39,7 @@ SELECT p.product_id, p.product_name, oi.order_id, COUNT(oi.order_item_id) AS tot
 SELECT p.product_id, p.product_name, oi.ordem_id FROM products AS p LEFT JOIN order_items AS oi ON p.product_id = oi.product_id WHERE oi.order_item_id IS NULL ORDER BY p.product_name;
 
 SELECT c.customer_id, c.first_name, c.last_name, o.order_id FROM orders AS o RIGHT JOIN customers AS c ON o.customer_id = c.customer_id;
+
+SELECT p.product_id, p.product_name, c.category_id, c.category_name FROM products AS p FULL JOIN categories AS c ON p.category_id = c.category_id ORDER BY c.category_id, p.product_id;
+
+SELECT o.order_id, o.customer_id AS pedido_customer_id, o.order_date, o.status, c.customer_id AS cliente_customer_id, c.first_name || ' ' || c.last_name AS cliente, c.city FROM orders AS o FULL JOIN customers AS c ON o.customer_id = c.customer_id ORDER BY o.order_date DESC;
