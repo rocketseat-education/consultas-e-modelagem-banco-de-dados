@@ -37,3 +37,11 @@ SELECT product_id, product_name FROM products WHERE category_id IS NOT NULL AND 
 SELECT product_id, price FROM products WHERE price BETWEEN 150 AND 300;
 
 SELECT product_id, product_name FROM products WHERE product_name BETWEEN 'Produto 10' AND 'Produto 20';
+
+SELECT customer_id, first_name FROM customers WHERE first_name LIKE 'Ju%';
+
+SELECT customer_id, first_name, last_name FROM customers WHERE last_name LIKE '%Silva';
+
+SELECT customer_id, first_name, last_name FROM customers WHERE first_name LIKE '%ia%';
+
+SELECT product_id, product_name FROM products WHERE product_name LIKE '_roduto 1%';
