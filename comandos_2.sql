@@ -52,7 +52,7 @@ SELECT * FROM products AS p LEFT JOIN order_items AS oi ON p.product_id = oi.pro
 
 SELECT * FROM (SELECT p.product_id, p.product_name, oi.order_id, oi.quantity FROM products AS p LEFT JOIN order_items AS oi ON p.product_id = oi.product_id) AS subq WHERE suba.quantitv > 0 OR suba.quantity IS NULL;
 
-SELECT c.customer_id, c.first_name, c.last_name, (SELECT COUNT (*) FROM orders o WHERE o.customer id = c.customer_id) AS total_pedidos FROM customers AS c;
+SELECT c.customer_id, c.first_name, c.last_name, (SELECT COUNT (*) FROM orders o WHERE o.customer_id = c.customer_id) AS total_pedidos FROM customers AS c;
 
 SELECT c.customer_id, c.first_name, COUNT(o.order_id) AS total_pedidos FROM customers AS c LEFT JOIN orders AS o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.first_name;
 
