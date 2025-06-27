@@ -39,3 +39,7 @@ CREATE TEMPORARY TABLE tmp_vendas_2024 AS SELECT * FROM orders WHERE order_date 
 CREATE VIEW vw_summary_2024 AS SELECT date_trunc('quarter', order_date) AS trimestre, COUNT (*) AS qtd_pedidos, SUM(total_amount) AS total_vendas FROM tmp_vendas_2024 GROUP BY 1;
 
 SELECT * FROM vw_summary_2024 ORDER BY trimestre;
+
+CREATE OR REPLACE FUNCTION fn_fullname(c_id INT) RETURNS TEXT AS $$ DECLARE v_first VARCHAR; v_last VARCHAR; BEGIN SELECT first_name, last_name INTO v_first, v_last FROM customers WHERE customer_id = c_id; RETURN v_first || ' ' || v_last; END; $$ LANGUAGE plpgsql;
+
+SELECT fn_fullname(42) AS nome_completo;
