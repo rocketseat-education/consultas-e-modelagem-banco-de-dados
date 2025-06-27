@@ -127,3 +127,7 @@ DO $$ DECLARE cust_id INT; tot NUMERIC; BEGIN CALL sp_order_summary(5, cust_id, 
 CREATE OR REPLACE PROCEDURE sp_increment_counter (INOUT ct INT) LANGUAGE plpgsql AS $$ BEGIN ct := ct + 1; END $$;
 
 DO $$ DECLARE C INT := 10; BEGIN CALL sp_increment_counter(c); RAISE NOTICE 'Novo valor: %', c; END; $$;
+
+BEGIN; UPDATE products SET price = price * 0.9 WHERE category_id = 3;  UPDATE orders SET total_amount = total_amount + 50 WHERE order_id = 496;  COMMIT;
+
+BEGIN; INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (2, CURRENT_DATE, 'PENDING', 200.00); SAVEPOINT my_savepoint; INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (3, CURRENT_DATE, 'PENDING', 200.00); ROLLBACK TO my_savepoint; INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (4, CURRENT_DATE, 'PENDING', 200.00); COMMIT;
