@@ -43,3 +43,7 @@ SELECT customer_id, order_id, order_date, total_amount, RANK() OVER (PARTITION B
 SELECT customer_id, order_id, order_date, total_amount, DENSE_RANK() OVER (PARTITION BY customer_id ORDER BY total_amount DESC) AS posicao FROM orders;
 
 SELECT o.customer_id, c.first_name, o.total_amount, ROW_NUMBER() OVER (PARTITION BY o.customer_id ORDER BY o.total_amount DESC) AS rn, RANK() OVER (PARTITION BY o.customer_id ORDER BY o.total_amount DESC) AS rk, DENSE_RANK() OVER (PARTITION BY o.customer_id ORDER BY o.total_amount DESC) AS drk FROM orders o JOIN customers c ON c.customer_id = o.customer_id ORDER BY o.customer_id, rk;
+
+WITH vendas_mensais AS (SELECT DATE_TRUNC('month', order_date) AS mes, SUM(total_amount) AS total_vendas FROM orders GROUP BY mes) SELECT mes, total_vendas, LAG(total_vendas) OVER (ORDER BY mes) AS vendas_anterior, total_vendas - LAG(total_vendas) OVER (ORDER BY mes) AS diferenca FROM vendas_mensais ORDER BY mes;
+
+WITH vendas_mensais AS (SELECT DATE_TRUNC('month', order_date) AS mes, SUM(total_amount) AS total_vendas FROM orders GROUP BY mes) SELECT mes, total_vendas, LEAD(total_vendas) OVER (ORDER BY mes) AS vendas_proximo_mes FROM vendas_mensais ORDER BY mes;
