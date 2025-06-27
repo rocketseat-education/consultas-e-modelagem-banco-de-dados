@@ -71,3 +71,13 @@ SELECT fn_delete_customer (202) AS result;
 CREATE OR REPLACE FUNCTION fn_create_order(p_customer_id INT, p_items JSON) RETURNS TEXT AS $$ DECLARE v_order_id INT; v_item JSON; BEGIN INSERT INTO orders (customer_id, order_date, status, total_amount) VALUES (p_customer_id, NOW(), 'PENDING', 0) RETURNING order_id INTO v_order_id; FOR v_item IN SELECT * FROM json_array_elements(p_items) LOOP INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (v_order_id, (v_item->>'product_id') :: INT, (v_item->>'quantity') :: INT, (v_item->>'unit_price') : : NUMERIC); END LOOP; RETURN FORMAT('Pedido %s criado com sucesso.', v_order_id); EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'Erro ao criar pedido. Revertendo ... '; RAISE; END; $$ LANGUAGE plpgsql;
 
 SELECT fn_create_order(2, '[{"product_id": 97, "quantity": 2, "unit_price": 10.50}, {"product_id": 98, "quantity": 1, "unit_price": 5.00}, {"product_id": 99, "quantity": 4, "unit_price": 2.25}]' :: json ) AS resultado;
+
+CREATE TABLE orders_audit (audit_id SERIAL PRIMARY KEY, order_id INT, action VARCHAR(10), action_time TIMESTAMP);
+
+CREATE OR REPLACE FUNCTION tg_audit_order() RETURNS TRIGGER AS $$ BEGIN INSERT INTO orders_audit(order_id, action, action_time) VALUES (COALESCE(NEW.order_id, OLD.order_id), TG_OP, NOW()); RETURN NEW; END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_order_audit AFTER INSERT OR UPDATE OR DELETE ON orders FOR EACH ROW EXECUTE FUNCTION tg_audit_order();
+
+UPDATE orders SET status = 'SHIPPED' WHERE order_id = 5;
+
+SELECT * FROM orders_audit WHERE order_id = 5;
