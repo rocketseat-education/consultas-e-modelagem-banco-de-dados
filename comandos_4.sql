@@ -27,3 +27,9 @@ SELECT COUNT (*) FROM products WHERE product_name LIKE '%P%' AND price > 100;
 REINDEX INDEX idx_products_price;
 
 VACUUM (ANALYZE) products;
+
+EXPLAIN ANALYSE SELECT * FROM customers WHERE customer_id = 101;
+
+EXPLAIN SELECT * FROM products WHERE price > 300;
+
+EXPLAIN ANALYZE SELECT * FROM products WHERE price > 300;
