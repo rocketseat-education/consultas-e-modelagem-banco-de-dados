@@ -49,3 +49,17 @@ SELECT o.order_id, (SELECT COUNT (*) FROM order_items oi WHERE oi.order_id = o.o
 SELECT o.order_id, COUNT (oi.order_id) AS itens FROM orders o LEFT JOIN order_items oi ON o.order_id = oi.order_id WHERE o.status = 'DELIVERED' GROUP BY o.order_id;
 
 WITH soma_itens AS (SELECT order_id, SUM(quantity * unit_price) AS subtotal FROM order_items GROUP BY order_id) SELECT o.order_id, o.total_amount, si.subtotal FROM orders o JOIN soma_itens si ON si.order_id = o.order_id WHERE o.status = 'DELIVERED';
+
+CREATE TABLE orders_part (order_id SERIAL PRIMARY KEY, customer_id INT, order_date DATE NOT NULL, status VARCHAR(20), total_amount NUMERIC(12, 2), PRIMARY KEY (order_date, order_id)) PARTITION BY RANGE (order_date);
+
+CREATE TABLE orders_2024_01 PARTITION OF orders_part FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+
+CREATE TABLE orders_2024_02 PARTITION OF orders_part FOR VALUES FROM ('2024-02-01') TO ('2024-03-01');
+
+INSERT INTO orders_part (order_id, customer_id, order_date, status, total_amount) VALUES (250, 123, '2024-01-15', 'SHIPPED', 250.00);
+
+INSERT INTO orders_part (order_id, customer_id, order_date, status, total_amount) VALUES (350, 123, '2024-02-15', 'SHIPPED', 250.00);
+
+SELECT * FROM orders_part WHERE order_date BETWEEN '2024-01-01' AND '2024-01-31';
+
+SELECT * FROM orders_part WHERE order_date BETWEEN '2024-02-01' AND '2024-02-28';
