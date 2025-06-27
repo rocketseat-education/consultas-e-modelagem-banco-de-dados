@@ -19,3 +19,11 @@ WITH vendas_por_cidade AS (SELECT c.city, SUM(o.total_amount) AS total_vendas FR
 WITH vendas_produto AS (SELECT p.product_name, SUM(oi.quantity) AS total_vendido FROM products p JOIN order _items oi ON p.product_id = oi.product_id GROUP BY p.product_name) SELECT * FROM vendas_produto ORDER BY total_vendido DESC LIMIT 10;
 
 WITH RECURSIVE numeros AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM numeros WHERE n < 10) SELECT * FROM numeros;
+
+SELECT customer_id, first_name, last_name FROM customers WHERE customer_id IN (SELECT customer_id FROM orders) UNION SELECT customer_id, first_name, last_name FROM customers WHERE customer_id NOT IN (SELECT customer_id FROM orders);
+
+SELECT customer_id, first_name, last_name FROM customers WHERE customer_id IN (SELECT DISTINCT customer_id FROM orders) UNION SELECT customer_id, first_name, last_name FROM customers WHERE customer_id NOT IN (SELECT customer_id FROM orders);
+
+SELECT product_id, product_name FROM products WHERE product_id IN (SELECT product_id FROM order_items) UNION ALL SELECT product_id, product_name FROM products WHERE product_id NOT IN (SELECT product_id FROM order_items);
+
+WITH uniao_teste AS (SELECT 'SP' AS origem, email FROM customers WHERE city = 'Sao Paulo' UNION ALL SELECT 'RJ' AS origem, email FROM customers WHERE city = 'Rio de Janeiro') SELECT email, COUNT(*) AS ocorrencias FROM uniao_teste GROUP BY email HAVING COUNT(*) > 1;
