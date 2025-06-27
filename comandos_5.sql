@@ -133,3 +133,11 @@ BEGIN; UPDATE products SET price = price * 0.9 WHERE category_id = 3;  UPDATE or
 BEGIN; INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (2, CURRENT_DATE, 'PENDING', 200.00); SAVEPOINT my_savepoint; INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (3, CURRENT_DATE, 'PENDING', 200.00); ROLLBACK TO my_savepoint; INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (4, CURRENT_DATE, 'PENDING', 200.00); COMMIT;
 
 DO $$ DECLARE v_order_id INTEGER; BEGIN BEGIN INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (2, CURRENT_DATE, 'PENDING', 200.00) RETURNING order_id INTO v_order_id; RAISE NOTICE 'Pedido 1 inserido com ID %', v_order_id; INSERT INTO orders(customer_id, order_date, status, total_amount) VALUES (3, CURRENT_DATE, 'PENDING', 200.00); INSERT INTO orders(customer_id, order_date, status, total_amount) RAISE NOTICE 'Todos os pedidos inseridos com sucesso.'; EXCEPTION WHEN OTHERS THEN RAISE WARNING 'Erro ao inserir pedidos: %, revertendo todos os INSERTs', SQLERRM; RETURN; END; END; $$ LANGUAGE plpgsql;
+
+SELECT pid, relation: : regclass, mode, granted FROM pg_locks WHERE NOT granted;
+
+SELECT pid, xact_start, query FROM pg_stat_activity WHERE state = 'active';
+
+BEGIN; LOCK TABLE orders IN SHARE ROW EXCLUSIVE MODE; COMMIT;
+
+DO $$ DECLARE tentativa INT := 0; BEGIN LOOP BEGIN tentativa := tentativa + 1; BEGIN UPDATE products SET stock = stock - 1 WHERE product_id = 1; COMMIT; EXIT; EXCEPTION WHEN serialization_failure OR deadlock_detected THEN RAISE NOTICE 'Tentativa % falhou, tentando novamente ... ', tentativa; ROLLBACK; PERFORM pg_sleep(0.5); IF tentativa > 5 THEN RAISE EXCEPTION 'Limite de tentativas excedido.'; END IF; END; END;
