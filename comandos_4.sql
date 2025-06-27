@@ -17,3 +17,13 @@ CREATE UNIQUE INDEX idx_department_name_unq ON departments(department_name);
 CREATE INDEX idx_orders_pending ON orders(order_date) WHERE status = 'PENDING';
 
 CREATE INDEX idx_customers_lower_email ON customers (LOWER(email));
+
+-- CREATE INDEX CONCURRENTLY index_name ON table_name using btree (column);
+
+CREATE INDEX idx_product_name_price ON products (product_name, price);
+
+SELECT COUNT (*) FROM products WHERE product_name LIKE '%P%' AND price > 100;
+
+REINDEX INDEX idx_products_price;
+
+VACUUM (ANALYZE) products;
