@@ -12,6 +12,18 @@ CREATE VIEW vw_resumo_vendas_mensal AS SELECT date_trunc('month', o.order_date) 
 
 SELECT * FROM vw_resumo_vendas_mensal WHERE mes = '2024-05-01';
 
-CREATE VIEW vw_itens_pedido_detalhado AS SELECT o.order_id, p.product_name, oi.quantity, oi.unit_price, (oi.quantity * oi.unit_price) AS subtotal, o.order_date FROM order_items oi JOIN orders o ON oi.order_id = o.order_id JOIN products p ON oi. product_id = p.product_id;
+CREATE VIEW vw_itens_pedido_detalhado AS SELECT o.order_id, p.product_name, oi.quantity, oi.unit_price, (oi.quantity * oi.unit_price) AS subtotal, o.order_date FROM order_items oi JOIN orders o ON oi.order_id = o.order_id JOIN products p ON oi.product_id = p.product_id;
 
-SELECT viewname FROM pg_views WHERE schemaname = 'public' ;
+SELECT viewname FROM pg_views WHERE schemaname = 'public';
+
+CREATE MATERIALIZED VIEW mv_resumo_vendas_mensal AS SELECT date_trunc('month', o.order_date) AS mes, COUNT (o.order_id) AS total_pedidos, SUM(o.total_amount) AS valor_total FROM orders o GROUP BY 1;
+
+SELECT * FROM mv_resumo_vendas_mensal;
+
+REFRESH MATERIALIZED VIEW mv_resumo_vendas_mensal;
+
+CREATE INDEX idx_mv_vendas_mes ON mv_resumo_vendas_mensal(mes);
+
+SELECT * FROM mv_resumo_vendas_mensal WHERE mes BETWEEN '2024-01-01' AND '2024-06-01';
+
+CREATE MATERIALIZED VIEW mv_top_clientes_2024 AS SELECT c.customer_id, c.first_name || ' ' || c.last_name AS nome_completo, SUM(o.total_amount) AS total_gasto FROM customers c JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_date BETWEEN '2024-01-01' AND '2024-12-31' GROUP BY c.customer_id, c.first_name, c.last_name HAVING SUM(o.total_amount) > 500;
