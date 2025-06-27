@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION fn_delete_customer(c_id INT) RETURNS TEXT AS $$ BEGIN
 
 SELECT fn_delete_customer (202) AS result;
 
-CREATE OR REPLACE FUNCTION fn_create_order(p_customer_id INT, p_items JSON) RETURNS TEXT AS $$ DECLARE v_order_id INT; v_item JSON; BEGIN INSERT INTO orders (customer_id, order_date, status, total_amount) VALUES (p_customer_id, NOW(), 'PENDING', 0) RETURNING order_id INTO v_order_id; FOR v_item IN SELECT * FROM json_array_elements(p_items) LOOP INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (v_order_id, (v_item->>'product_id') :: INT, (v_item->>'quantity') :: INT, (v_item->>'unit_price') : : NUMERIC); END LOOP; RETURN FORMAT('Pedido %s criado com sucesso.', v_order_id); EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'Erro ao criar pedido. Revertendo ... '; RAISE; END; $$ LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION fn_create_order(p_customer_id INT, p_items JSON) RETURNS TEXT AS $$ DECLARE v_order_id INT; v_item JSON; BEGIN INSERT INTO orders (customer_id, order_date, status, total_amount) VALUES (p_customer_id, NOW(), 'PENDING', 0) RETURNING order_id INTO v_order_id; FOR v_item IN SELECT * FROM json_array_elements(p_items) LOOP INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (v_order_id, (v_item->>'product_id') :: INT, (v_item->>'quantity') :: INT, (v_item->>'unit_price') :: NUMERIC); END LOOP; RETURN FORMAT('Pedido %s criado com sucesso.', v_order_id); EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'Erro ao criar pedido. Revertendo ... '; RAISE; END; $$ LANGUAGE plpgsql;
 
 SELECT fn_create_order(2, '[{"product_id": 97, "quantity": 2, "unit_price": 10.50}, {"product_id": 98, "quantity": 1, "unit_price": 5.00}, {"product_id": 99, "quantity": 4, "unit_price": 2.25}]' :: json ) AS resultado;
 
@@ -104,7 +104,7 @@ UPDATE products SET product_name = 'Teste Trigger 123' WHERE product_id = 102;
 
 CREATE TABLE customers_audit (audit_id SERIAL PRIMARY KEY, customer_id INT, changed_by TEXT, changed_at TIMESTAMP, action TEXT, field_name TEXT, old_value TEXT, new_value TEXT);
 
-CREATE OR REPLACE FUNCTION tg_audit_customer_changes() RETURNS TRIGGER AS $$ BEGIN IF TG_OP = 'UPDATE' THEN IF OLD.first_name IS DISTINCT FROM NEW.first_name THEN INSERT INTO customers_audit(customer_id, changed_by, changed_at, action, field_name, old_value, new_value) VALUES (OLD.customer_id, current_user, NOW(), TG_OP, 'first_name', OLD.first_name, NEW.first_name, NEW.first_name); END IF; IF OLD.city IS DISTINCT FROM NEW.city THEN INSERT INTO customers_audit(customer_id, changed_by, changed_at, action, field_name, old_value, new_value) VALUES (OLD.customer_id, current_user, NOW(), TG_OP, 'city', OLD.city, NEW.city); END IF; END IF; RETURN NEW; END; $$ LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION tg_audit_customer_changes() RETURNS TRIGGER AS $$ BEGIN IF TG_OP = 'UPDATE' THEN IF OLD.first_name IS DISTINCT FROM NEW.first_name THEN INSERT INTO customers_audit(customer_id, changed_by, changed_at, action, field_name, old_value, new_value) VALUES (OLD.customer_id, current_user, NOW(), TG_OP, 'first_name', OLD.first_name, NEW.first_name); END IF; IF OLD.city IS DISTINCT FROM NEW.city THEN INSERT INTO customers_audit(customer_id, changed_by, changed_at, action, field_name, old_value, new_value) VALUES (OLD.customer_id, current_user, NOW(), TG_OP, 'city', OLD.city, NEW.city); END IF; END IF; RETURN NEW; END; $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_customer_audit AFTER UPDATE ON customers FOR EACH ROW EXECUTE FUNCTION tg_audit_customer_changes();
 
@@ -119,3 +119,11 @@ CALL sp_update_product_price(42, 199.90);
 CREATE OR REPLACE PROCEDURE sp_cancel_order(p_order_id INT) LANGUAGE plpgsql AS $$ BEGIN DELETE FROM order_items WHERE order_id = p_order_id; DELETE FROM orders WHERE order_id = p_order_id; IF NOT FOUND THEN RAISE NOTICE 'Pedido % nao encontrado', p_order_id; ELSE RAISE NOTICE 'Pedido % e itens removidos', p_order_id; END IF; END; $$;
 
 CALL sp_cancel_order(499);
+
+CREATE OR REPLACE PROCEDURE sp_order_summary(IN p_order_id INT, OUT p_customer_id INT, OUT p_total_amount NUMERIC) LANGUAGE plpgsql AS $$ BEGIN SELECT customer_id, total_amount INTO p_customer_id, p_total_amount FROM orders WHERE order_id = p_order_id; END; $$;
+
+DO $$ DECLARE cust_id INT; tot NUMERIC; BEGIN CALL sp_order_summary(5, cust_id, tot); RAISE NOTICE 'Cliente: %, Total: %', cust_id, tot; END; $$;
+
+CREATE OR REPLACE PROCEDURE sp_increment_counter (INOUT ct INT) LANGUAGE plpgsql AS $$ BEGIN ct := ct + 1; END $$;
+
+DO $$ DECLARE C INT := 10; BEGIN CALL sp_increment_counter(c); RAISE NOTICE 'Novo valor: %', c; END; $$;
