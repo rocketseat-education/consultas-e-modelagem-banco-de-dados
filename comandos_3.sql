@@ -31,3 +31,7 @@ WITH uniao_teste AS (SELECT 'SP' AS origem, email FROM customers WHERE city = 'S
 SELECT email FROM customers WHERE city = 'Sao Paulo' INTERSECT SELECT email FROM customers WHERE city = 'Rio de Janeiro';
 
 SELECT product_id, product_name FROM products EXCEPT SELECT DISTINCT p.product_id, p.product_name FROM products p JOIN order_items oi ON oi.product_id = p.product_id;
+
+SELECT o.customer_id, c.first_name, o.order_id, o.order_date, o.total_amount, SUM(o.total_amount) OVER (PARTITION BY o.customer_id ORDER BY o.order_date) AS total_acumulado FROM orders o JOIN customers c ON c.customer_id = o.customer_id ORDER BY o.customer_id, o.order_date;
+
+SELECT o.customer_id, c.first_name, o.order_id, o.total_amount, ROUND(100.0 * o.total_amount / SUM(o.total_amount) OVER (PARTITION BY o.customer_id), 2) AS percentual_sobre_total FROM orders o JOIN customers c ON c.customer_id = o.customer_id ORDER BY o.customer_id, o.order_date;
