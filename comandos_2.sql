@@ -57,3 +57,21 @@ SELECT c.customer_id, c.first_name, c.last_name, (SELECT COUNT (*) FROM orders o
 SELECT c.customer_id, c.first_name, COUNT(o.order_id) AS total_pedidos FROM customers AS c LEFT JOIN orders AS o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.first_name;
 
 SELECT cli.customer_id, CONCAT(cli.first_name, ' ', cli. last_name) AS nome_cliente, pd.order_id, TO_CHAR(pd.order_date, 'DD/MM/YYYY') AS data_pedido, pr.product_id, pr.product_name, ip.quantity, ip.unit_price, (ip.quantity * ip.unit_price) AS subtotal FROM customers AS cli INNER JOIN orders AS pd ON cli.customer_id = pd.customer_id INNER JOIN order_items AS ip ON pd.order_id = ip.order_id INNER JOIN products AS pr ON ip.product_id = pr.product_id WHERE pd.status = 'DELIVERED' ORDER BY cli.customer_id, pd.order_date;
+
+SELECT * FROM departments;
+
+SELECT * FROM positions;
+
+SELECT * FROM employees;
+
+SELECT * FROM salaries;
+
+SELECT e.employee_id, e.first_name || ' ' || e.last_name AS nome, d.department_name, p.position_name FROM employees AS e INNER JOIN departments AS d ON e.department_id = d.department_id INNER JOIN positions AS p ON e.position_id = p.position_id;
+
+SELECT e.employee_id, e.first_name || ' ' || e.last_name AS nome, e.department_id, e.position_id FROM employees AS e LEFT JOIN departments AS d ON e.department_id = d.department_id LEFT JOIN positions AS p ON e.position_id = p.position_id WHERE d.department_id IS NULL OR p.position_id IS NULL;
+
+SELECT d.department_name, COUNT(e.employee_id) AS total_funcionarios FROM departments AS d LEFT JOIN employees AS e ON d.department_id = e.department_id GROUP BY d.department_name ORDER BY total_funcionarios DESC;
+
+SELECT s.employee_id, s.salary_amount FROM salaries AS s WHERE s.effective_to IS NULL;
+
+SELECT p.position_name, AVG(s.salary_amount) AS media_salarial FROM positions AS p INNER JOIN employees AS e ON p.position_id = e.position_id INNER JOIN (SELECT employee_id, salary_amount FROM salaries WHERE effective_to IS NULL) AS s ON e.employee_id = s.employee_id GROUP BY p.position_name ORDER BY media_salarial DESC;
